@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
+
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
+
 
 
 //hamle 21 ma Auth use gareko xau tei vara facades/auth gareko
@@ -36,14 +38,18 @@ class HomeController extends Controller
 
     //for showing products in home page
     {
-        $products = Product::paginate(2);
+
+        $trending = Product::trending()->get();   // ← NEW: Trending products
+
+        $products = Product::paginate(4);
+
 
         //for show last comment on top
          $comments = comment::orderBy('id', 'desc')->get();
          
           $replies = reply::all();
         //paginate le page haru ma divide garxa 3 dexam vane 3 ota product matra dekhaune
-        return view('home.userpage', compact('products', 'comments', 'replies'));
+        return view('home.userpage', compact('products','trending', 'comments', 'replies'));
     }
 
     public function redirect()
@@ -81,19 +87,30 @@ class HomeController extends Controller
         }
         else
         {
-            $products = Product::paginate(10);
+
+            // THESE 2 LINES WERE MISSING → ADD THEM!
+        $trending = Product::trending()->get();        // ← TRENDING PRODUCTS
+        $products = Product::paginate(4);
+
+
+            $products = Product::paginate(4);
             $comments = comment::orderBy('id', 'desc')->get();
             $replies = reply::all();
         //paginate le page haru ma divide garxa 3 dexam vane 3 ota product matra dekhaune
-        return view('home.userpage', compact('products', 'comments', 'replies'));
+        return view('home.userpage', compact('products','trending', 'comments', 'replies'));
 
             //yo garyo vane userle login garda dashboard mai janxa
         }
+
+        
     }
     public function product_details($id)
     {
         //for showing product details
         $products = Product::find($id);
+
+        $products->increment('view_count');   // ← ADD THIS LINE for trending product algorithm
+
         return view('home.product_details', compact('products'));
     }
 
@@ -268,6 +285,13 @@ else
 
             $order->save();
 
+            // ←←← THESE 4 LINES ARE THE ALGORITHM PART →→→
+        $product = Product::find($cart_item->product_id);
+        $product->increment('order_count');
+        $product->last_ordered_at = now();
+        $product->save();
+        // ←←← END OF ALGORITHM →→→
+
             // after saving order, delete this cart item
             $cart_item->delete();
         }
@@ -278,7 +302,7 @@ else
     //for stripe payment
     public function stripe($totalprice)
 {
-    return view('home.stripe', compact('totalprice'));
+    return view('home.stripe', data: compact('totalprice'));
 }
 
 public function createPaymentIntent(Request $request)
@@ -319,6 +343,15 @@ public function createPaymentIntent(Request $request)
             $order->delivery_status = 'processing';
 
             $order->save();
+
+
+            // THESE 4 LINES = ALGORITHM PART (Trending Products)
+        $product = Product::find($cart_item->product_id);
+        $product->increment('order_count');
+        $product->last_ordered_at = now();
+        $product->save();
+        ///end of algorithm part
+
 
             // after saving order, delete this cart item
             $cart_item->delete();
@@ -519,6 +552,52 @@ public function contact()
 {
     return view('home.contact');
 }
+
+
+
+//for search algorithm
+public function search(Request $request)
+{
+    $query = $request->input('query');  // FIXED
+    
+    if (!$query) {
+        return redirect()->back()->with('message', 'Please enter a search term.');
+    }
+
+    $products = Product::all();
+
+    $results = $products->filter(function ($product) use ($query) {
+    $title = strtolower($product->title);
+    $q = strtolower($query);
+
+    // Condition 1: small spelling mistakes (<= 3)
+    if (levenshtein($title, $q) <= 3) {
+        return true;
+    }
+
+    // Condition 2: partial match fuzzy
+    if (levenshtein($title, $q) <= strlen($title) / 2) {
+        return true;
+    }
+
+    // Condition 3: any word inside the title fuzzy match
+    foreach (explode(' ', $title) as $word) {
+        if (levenshtein($word, $q) <= 2) {
+            return true;
+        }
+    }
+
+    // Condition 4: simple contains check
+    if (str_contains($title, $q)) {
+        return true;
+    }
+
+    return false;
+});
+    return view('search_results', ['products' => $results, 'query' => $query]);
+}
+//
+
 
 
 }

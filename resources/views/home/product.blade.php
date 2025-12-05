@@ -16,7 +16,7 @@
             </p>
 
             <!-- Modern Search Bar -->
-            <form action="{{ url('search_product') }}" method="GET" class="max-w-2xl mx-auto">
+            {{-- <form action="{{ url('search_product') }}" method="GET" class="max-w-2xl mx-auto">
                 @csrf
                 <div class="relative">
                     <i class="ri-search-line absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl"></i>
@@ -30,7 +30,37 @@
                         Search
                     </button>
                 </div>
-            </form>
+            </form> --}}
+
+        <form action="{{ route('search') }}" method="GET" class="max-w-2xl mx-auto px-4 py-2">
+    <div class="relative">
+        <i class="ri-search-line absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl"></i>
+
+        <input 
+            type="text" 
+            name="query" 
+            placeholder="Search for your favorite books, authors, or genres..."
+            class="w-full pl-14 pr-32 py-4 rounded-2xl border-2 border-slate-200 
+                   focus:border-primary-500 focus:ring-4 focus:ring-primary-100 
+                   outline-none transition-all duration-300 text-slate-700 
+                   placeholder:text-slate-400"
+        >
+
+        <button 
+            type="submit"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 
+                   px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 
+                   hover:from-primary-600 hover:to-primary-700 
+                   text-white font-semibold rounded-xl shadow-lg 
+                   shadow-primary-500/30 transition-all duration-300 hover:scale-105">
+            Search
+        </button>
+    </div>
+</form>
+
+
+
+            
         </div>
 
         <!-- Success Message -->

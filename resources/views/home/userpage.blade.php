@@ -88,6 +88,57 @@
     <!-- Products Section -->
     @include('home.product')
 
+    <!-- TRENDING PRODUCTS SECTION (ALGORITHM #1) -->
+    @if(isset($trending) && $trending->count() > 0)
+    <section class="py-16 bg-gradient-to-b from-white to-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-display font-bold text-slate-900 mb-4">
+                    Trending Right Now
+                </h2>
+                <p class="text-lg text-slate-600">Most popular books based on recent purchases & views</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                @foreach($trending as $product)
+                <div class="hover-card group">
+                    <a href="{{ url('product.details', $product->id) }}" class="block">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
+                            <div class="relative">
+                                <img src="/productimage/{{ $product->image }}" 
+                                     alt="{{ $product->title }}" 
+                                     class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300">
+                                <div class="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                                    HOT
+                                </div>
+                            </div>
+                            <div class="p-5 text-center">
+                                <h3 class="font-semibold text-slate-800 mb-2 line-clamp-2">
+                                    {{ Str::limit($product->title, 40) }}
+                                </h3>
+                                <div class="flex items-center justify-center gap-2 mb-3">
+                                    @if($product->discount_price)
+                                        <span class="text-2xl font-bold text-primary-600">${{ $product->discount_price }}</span>
+                                        <span class="text-sm text-slate-500 line-through">${{ $product->price }}</span>
+                                    @else
+                                        <span class="text-2xl font-bold text-primary-600">${{ $product->price }}</span>
+                                    @endif
+                                </div>
+                                <span class="inline-block px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full text-sm font-medium hover:from-primary-600 hover:to-primary-700 transition-all">
+                                    View Details
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+    <!-- END TRENDING SECTION -->
+
+
     <!-- Comments Section -->
     <section class="py-20 bg-gradient-to-br from-slate-100 via-white to-slate-100">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

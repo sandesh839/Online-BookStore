@@ -506,7 +506,7 @@
           <i class="mdi mdi-cart"></i>
         </span>
         <span class="menu-title">Orders</span>
-        <span class="menu-badge">12</span>
+        {{-- <span class="menu-badge">12</span> --}}
       </a>
     </li>
 

@@ -22,6 +22,13 @@ return new class extends Migration
             $table->text('discount_price')->nullable();
 
 
+            // ADD THESE 3 LINES HERE (Trending Algorithm Columns)
+            $table->integer('view_count')->default(0);
+            $table->integer('order_count')->default(0);
+            $table->timestamp('last_ordered_at')->nullable();
+            // END OF ADDITION
+
+
 
 
             
