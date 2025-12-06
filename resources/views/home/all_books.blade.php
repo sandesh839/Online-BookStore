@@ -133,8 +133,141 @@
 
 </div>
 
-{{-- Products --}}
-@include('home.product')
+{{-- Books Products Section --}}
+<section id="products" class="py-20 bg-gradient-to-b from-white to-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 text-primary-700 text-sm font-semibold mb-4">
+                <i class="ri-book-3-line"></i>
+                Book Collection
+            </span>
+            <h2 class="text-4xl md:text-5xl font-display font-bold text-slate-900 mb-4">
+                Browse All <span class="bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">Books</span>
+            </h2>
+            <p class="text-slate-600 text-lg max-w-2xl mx-auto mb-8">
+                Explore our complete collection of books
+            </p>
+        </div>
+
+        <!-- Sorting Dropdown -->
+        <div class="flex justify-end mb-6">
+            <form action="{{ url('/books') }}" method="GET" class="inline-block">
+                <div class="relative">
+                    <label for="sort" class="text-sm font-semibold text-slate-700 mr-2">Sort by:</label>
+                    <select 
+                        name="sort" 
+                        id="sort"
+                        onchange="this.form.submit()"
+                        class="px-6 py-3 pr-10 bg-white border-2 border-slate-200 rounded-xl text-slate-700 font-semibold 
+                               focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none 
+                               cursor-pointer hover:border-primary-300 transition-all appearance-none"
+                        style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.5em 1.5em;">
+                        <option value="default" {{ request('sort') == 'default' ? 'selected' : '' }}>Default</option>
+                        <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>💰 Price: Low to High</option>
+                        <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>💎 Price: High to Low</option>
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>🆕 Newest First</option>
+                        <option value="popular" {{ request('sort') == 'popular' ? 'selected' : '' }}>🔥 Most Popular</option>
+                        <option value="most_viewed" {{ request('sort') == 'most_viewed' ? 'selected' : '' }}>👁️ Most Viewed</option>
+                        <option value="name_az" {{ request('sort') == 'name_az' ? 'selected' : '' }}>🔤 A to Z</option>
+                        <option value="name_za" {{ request('sort') == 'name_za' ? 'selected' : '' }}>🔤 Z to A</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            @foreach($products as $product)
+                <div class="group bg-white rounded-2xl shadow-lg shadow-slate-200/50 overflow-hidden border border-slate-100 hover:border-primary-200 transition-all duration-500 hover:shadow-2xl hover:shadow-primary-500/20 hover:-translate-y-2">
+                    
+                    <!-- Image Container -->
+                    <div class="relative overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 aspect-[3/4]">
+                        <img 
+                            src="/productimage/{{ $product->image }}" 
+                            alt="{{ $product->title }}"
+                            class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
+                        >
+                        
+                        @if($product->discount_price)
+                            <div class="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                                {{ round((($product->price - $product->discount_price) / $product->price) * 100) }}% OFF
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-6">
+                        <!-- Category Badge -->
+                        <span class="inline-block px-3 py-1 bg-primary-50 text-primary-700 text-xs font-semibold rounded-full mb-3">
+                            {{ $product->category }}
+                        </span>
+
+                        <!-- Title -->
+                        <h3 class="text-lg font-bold text-slate-900 mb-3 line-clamp-2 min-h-[3.5rem] group-hover:text-primary-600 transition-colors">
+                            {{ $product->title }}
+                        </h3>
+
+                        <!-- Description -->
+                        <p class="text-slate-600 text-sm mb-4 line-clamp-2">
+                            {{ Str::limit($product->description, 80) }}
+                        </p>
+
+                        <!-- Price -->
+                        <div class="flex items-baseline gap-2 mb-4">
+                            @if($product->discount_price)
+                                <span class="text-2xl font-bold text-primary-600">
+                                    ${{ $product->discount_price }}
+                                </span>
+                                <span class="text-lg text-slate-400 line-through">
+                                    ${{ $product->price }}
+                                </span>
+                            @else
+                                <span class="text-2xl font-bold text-primary-600">
+                                    ${{ $product->price }}
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- Add to Cart Form -->
+                        <form action="{{ url('add_cart', $product->id) }}" method="POST" class="space-y-3">
+                            @csrf
+                            
+                            <!-- Quantity Input -->
+                            <div class="flex items-center gap-2 bg-slate-50 rounded-xl p-2 border border-slate-200">
+                                <i class="ri-shopping-cart-line text-slate-500 ml-2"></i>
+                                <input 
+                                    type="number" 
+                                    name="quantity" 
+                                    value="1" 
+                                    min="1"
+                                    class="flex-grow bg-transparent border-none outline-none px-2 py-1 font-semibold text-slate-700"
+                                >
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-2">
+                                <button type="submit" class="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
+                                    <i class="ri-shopping-cart-line"></i>
+                                    Add to Cart
+                                </button>
+                                <a href="{{ url('product.details', $product->id) }}" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all duration-300 flex items-center justify-center">
+                                    <i class="ri-eye-line text-xl"></i>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-12 flex justify-center">
+            {{ $products->links() }}
+        </div>
+    </div>
+</section>
 
 <!-- COMMENTS SECTION -->
 <div class="comments-section">

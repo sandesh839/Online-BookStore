@@ -63,6 +63,34 @@
             
         </div>
 
+        {{-- for sorting algorithm --}}
+
+        <!-- Sorting Dropdown -->
+        <div class="flex justify-end mb-6">
+            <form action="{{ url('/') }}" method="GET" class="inline-block">
+                <div class="relative">
+                    <label for="sort" class="text-sm font-semibold text-slate-700 mr-2">Sort by:</label>
+                    <select 
+                        name="sort" 
+                        id="sort"
+                        onchange="this.form.submit()"
+                        class="px-6 py-3 pr-10 bg-white border-2 border-slate-200 rounded-xl text-slate-700 font-semibold 
+                               focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none 
+                               cursor-pointer hover:border-primary-300 transition-all appearance-none"
+                        style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.5em 1.5em;">
+                        <option value="default" {{ request('sort') == 'default' ? 'selected' : '' }}>Default</option>
+                        <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>💰 Price: Low to High</option>
+                        <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>💎 Price: High to Low</option>
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>🆕 Newest First</option>
+                        <option value="popular" {{ request('sort') == 'popular' ? 'selected' : '' }}>🔥 Most Popular</option>
+                        <option value="most_viewed" {{ request('sort') == 'most_viewed' ? 'selected' : '' }}>👁️ Most Viewed</option>
+                        <option value="name_az" {{ request('sort') == 'name_az' ? 'selected' : '' }}>🔤 A to Z</option>
+                        <option value="name_za" {{ request('sort') == 'name_za' ? 'selected' : '' }}>🔤 Z to A</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
         <!-- Success Message -->
         @if(session()->has('message'))
             <div id="success-alert" class="max-w-md mx-auto mb-8 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-emerald-500/30 flex items-center gap-4 animate-slide-up">

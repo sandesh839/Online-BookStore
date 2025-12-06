@@ -112,16 +112,6 @@
                         </h1>
                     </div>
 
-                    <!-- Rating (Static for now) -->
-                    <div class="flex items-center gap-2">
-                        <div class="flex gap-1">
-                            @for($i = 0; $i < 5; $i++)
-                                <i class="ri-star-fill text-amber-400 text-lg"></i>
-                            @endfor
-                        </div>
-                        <span class="text-sm text-slate-600 font-semibold">(4.8 / 128 reviews)</span>
-                    </div>
-
                     <!-- Price -->
                     <div class="bg-gradient-to-r from-slate-50 to-primary-50 rounded-2xl p-6 border-2 border-primary-100">
                         @if ($products->discount_price)
@@ -217,3 +207,6 @@
 
 </body>
 </html>
+    </script>
+
+    

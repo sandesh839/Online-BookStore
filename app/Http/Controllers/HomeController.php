@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\Session;
+
 
 
 use Stripe\PaymentIntent;
@@ -34,14 +36,44 @@ class HomeController extends Controller
      */
 
 
-    public function index()
+    public function index(Request $request)
 
     //for showing products in home page
     {
 
         $trending = Product::trending()->get();   // ← NEW: Trending products
 
-        $products = Product::paginate(4);
+        // Sorting logic
+        $sort = $request->input('sort', 'default');
+        $query = Product::query();
+
+        switch($sort) {
+            case 'price_low':
+                $query->orderByRaw('COALESCE(discount_price, price) ASC');
+                break;
+            case 'price_high':
+                $query->orderByRaw('COALESCE(discount_price, price) DESC');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'popular':
+                $query->orderBy('order_count', 'desc');
+                break;
+            case 'most_viewed':
+                $query->orderBy('view_count', 'desc');
+                break;
+            case 'name_az':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'name_za':
+                $query->orderBy('title', 'desc');
+                break;
+            default:
+                $query->orderBy('id', 'desc');
+        }
+
+        $products = $query->paginate(4);
 
 
         //for show last comment on top
@@ -107,9 +139,9 @@ class HomeController extends Controller
     public function product_details($id)
     {
         //for showing product details
-        $products = Product::find($id);
+        $products = Product::findOrFail($id);
 
-        $products->increment('view_count');   // ← ADD THIS LINE for trending product algorithm
+        $products->increment('view_count');
 
         return view('home.product_details', compact('products'));
     }
@@ -499,11 +531,40 @@ public function search_product(Request $request)
     return view('home.userpage', compact('products', 'comments', 'replies'));   
 }
 
-//for books listing
-public function books()
+//for books listing high to low, low to high, newness, popularity, most viewed, A-Z, Z-A
+public function books(Request $request)
 {
+    // Sorting logic
+    $sort = $request->input('sort', 'default');
+    $query = Product::where('category', 'LIKE', 'book');
+
+    switch($sort) {
+        case 'price_low':
+            $query->orderByRaw('COALESCE(discount_price, price) ASC');
+            break;
+        case 'price_high':
+            $query->orderByRaw('COALESCE(discount_price, price) DESC');
+            break;
+        case 'newest':
+            $query->orderBy('created_at', 'desc');
+            break;
+        case 'popular':
+            $query->orderBy('order_count', 'desc');
+            break;
+        case 'most_viewed':
+            $query->orderBy('view_count', 'desc');
+            break;
+        case 'name_az':
+            $query->orderBy('title', 'asc');
+            break;
+        case 'name_za':
+            $query->orderBy('title', 'desc');
+            break;
+        default:
+            $query->orderBy('id', 'desc');
+    }
     
-    $products = Product::where('category', 'LIKE', 'book')->paginate(10);
+    $products = $query->paginate(10);
 
     $comments = comment::orderBy('id', 'desc')->get();
     $replies = reply::all();
@@ -594,6 +655,38 @@ public function search(Request $request)
 
     return false;
 });
+
+    // Apply sorting to search results
+    $sort = $request->input('sort', 'default');
+    
+    switch($sort) {
+        case 'price_low':
+            $results = $results->sortBy(function($product) {
+                return $product->discount_price ?? $product->price;
+            });
+            break;
+        case 'price_high':
+            $results = $results->sortByDesc(function($product) {
+                return $product->discount_price ?? $product->price;
+            });
+            break;
+        case 'newest':
+            $results = $results->sortByDesc('created_at');
+            break;
+        case 'popular':
+            $results = $results->sortByDesc('order_count');
+            break;
+        case 'most_viewed':
+            $results = $results->sortByDesc('view_count');
+            break;
+        case 'name_az':
+            $results = $results->sortBy('title');
+            break;
+        case 'name_za':
+            $results = $results->sortByDesc('title');
+            break;
+    }
+
     return view('search_results', ['products' => $results, 'query' => $query]);
 }
 //

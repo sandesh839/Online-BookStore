@@ -165,3 +165,13 @@ Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.
 
 //for search
 Route::get('/search', [HomeController::class, 'search'])->name('search');
+
+
+
+
+
+
+
+
+
+
